@@ -14,6 +14,8 @@
 
 [![MCP](https://img.shields.io/badge/MCP-compatible-green.svg)](https://modelcontextprotocol.io/) [![UTCP](https://img.shields.io/badge/UTCP-compatible-blue.svg)](https://www.utcp.io/) [![Claude Code](https://img.shields.io/badge/Claude_Code-MCP-8A2BE2)](https://claude.ai/claude-code) [![n8n](https://img.shields.io/badge/n8n-HTTP_API-orange)](./deployment/docs/04-N8N-INTEGRATION.md) [![GitHub](https://img.shields.io/github/stars/roomi-fields/gemini-notebook-mcp?style=social)](https://github.com/roomi-fields/gemini-notebook-mcp) [![MCP Toplist](https://mcptoplist.com/badge/io.github.roomi-fields%2Fnotebooklm-mcp.svg)](https://mcptoplist.com/server/io.github.roomi-fields%2Fnotebooklm-mcp) [![LightNow capabilities](https://lightnow.ai/badge/io.github.roomi-fields/notebooklm-mcp)](https://lightnow.ai/servers/io.github.roomi-fields/notebooklm-mcp)
 
+[![gemini-notebook-mcp MCP server](https://glama.ai/mcp/servers/roomi-fields/gemini-notebook-mcp/badges/score.svg)](https://glama.ai/mcp/servers/roomi-fields/gemini-notebook-mcp)
+
 <!-- End Badges -->
 
 </div>
