@@ -434,6 +434,12 @@ Found a bug? Have an idea? [Open an issue](https://github.com/roomi-fields/gemin
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
 
+## Support
+
+This project is maintained in its author's spare time. If it saves you time,
+supporting it through [GitHub Sponsors](https://github.com/sponsors/roomi-fields)
+helps keep it moving forward.
+
 ## License
 
 MIT — Use freely in your projects. See [LICENSE](./LICENSE).
