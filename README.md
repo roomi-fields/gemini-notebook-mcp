@@ -398,6 +398,7 @@ See [ROADMAP.md](./ROADMAP.md) for planned features and version history.
 
 <!-- releases:start — generated from CHANGELOG.md by scripts/sync-facts.mjs; do not edit by hand -->
 
+- **v4.12.0** (2026-11-28) — One command registers the server with your MCP clients
 - **v4.11.2** (2026-11-20) — Security — the Docker noVNC console needed no password
 - **v4.11.1** (2026-11-17) — Copying, checked on a live account · Audio and image sources
 - **v4.11.0** (2026-11-17) — Copy a notebook, its sources, or its Studio content
@@ -407,7 +408,6 @@ See [ROADMAP.md](./ROADMAP.md) for planned features and version history.
 - **v4.7.0** (2026-11-07) — The published specification was invalid, and nothing checked · The Rust client covers the whole API, and is generated · and more
 - **v4.6.0** (2026-11-06) — Retry a failed generation without losing its id · A UTCP interface, and 56 named operations · and more
 - **v4.5.0** (2026-10-30) — Search the sources without paying for an answer
-- **v4.4.0** (2026-10-24) — Two security fixes, both reported by Umar Ahmed (ghostnshells)
 
 <!-- releases:end -->
 

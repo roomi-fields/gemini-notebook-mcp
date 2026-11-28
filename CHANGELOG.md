@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [4.12.0] - 2026-11-28
+
+### One command registers the server with your MCP clients
+
+```bash
+npx -y @roomi-fields/notebooklm-mcp setup
+```
+
+Until now, using the server meant editing each MCP client's config by hand.
+`setup` finds the clients installed on the machine and adds the server to
+each: Claude Code and Codex through their own `mcp add` command; Claude
+Desktop, Cursor, Windsurf, Gemini CLI, VS Code (Copilot) and Cline by editing
+their config file.
+
+- It shows what it found and asks before changing anything. Without a
+  terminal it changes nothing unless you pass `--yes`.
+- Each config file is backed up next to itself, then replaced in one step.
+  A file it cannot parse (comments, a typo) is left alone, and the entry to
+  paste is printed instead.
+- An existing `notebooklm` entry of yours (a clone, a pinned version) is kept
+  unless you pass `--force`.
+- If the Claude Code plugin `notebooklm@roomi-fields` is installed, Claude
+  Code counts as already set up, so the server is not started twice.
+- `--list` and `--dry-run` change nothing, `--client cursor,vscode` limits the
+  run, and `--remove` takes the entry out again.
+
+The repository also gained an `llms-install.md`, the install guide agents such
+as Cline follow. The README's MCP quick start now leads with `setup`. It also
+gives the right folder to `cd` into after cloning the renamed repository, and
+counts 62 documented endpoints instead of 33.
+
 ## [4.11.2] - 2026-11-20
 
 ### Security — the Docker noVNC console needed no password

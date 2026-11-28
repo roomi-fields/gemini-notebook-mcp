@@ -67,7 +67,6 @@ because the appended site name made every one of them 71 to 117 characters.
 
 | Capability                                        | RPC id                         | Notes                                                                                     |
 | ------------------------------------------------- | ------------------------------ | ----------------------------------------------------------------------------------------- |
-| Independent conversations per notebook            | —                              | The most repeated user request on the competitor's tracker.                               |
 | Suggested follow-ups, prompts, report formats     | `OcvKNc`, `otmP3b`, `ciyUvf`   | Three trivial calls.                                                                      |
 | Async URL ingestion; append text to a source      | `X1snv`, `QsNTEd`              | ~0.65 s vs ~2 s per source.                                                               |
 | Chat configuration: goal, persona, length         | `s0tc2d` variant               |                                                                                           |
@@ -158,7 +157,6 @@ fortnight, 145 saw only the front page.
 
 | Item                                                           | Note                                                                                              |
 | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| **A `setup` command that writes the client config**            | Detect the installed clients, back up before writing. The single biggest drop-off we can address. |
 | **Bounded re-auth budget**                                     | Theirs stops after 3 failures / 900 s with a specific diagnostic. Ours retries without a ceiling. |
 | **Login that never replaces a good session with a failed one** | Theirs waits for the real cookie + CSRF for 300 s, and keeps the old session on failure.          |
 | **Optional encryption of the stored session**                  | Ours sits in plain files — the same files the `add_source` hole could exfiltrate.                 |
@@ -226,6 +224,19 @@ Verified dead or no-op upstream — knowing this is worth as much as the rest.
 ---
 
 ## Recently Implemented
+
+### v4.12.0 - `setup` registers the server with the installed MCP clients
+
+The first Onboarding item. `notebooklm-mcp setup` detects Claude Code, Codex,
+Claude Desktop, Cursor, Windsurf, Gemini CLI, VS Code (Copilot) and Cline. It
+backs up each config before an atomic write, never rewrites a file that does
+not parse, and keeps a differing user entry unless `--force`. An installed
+Claude Code plugin counts as configured.
+
+Tried first and dropped: independent conversation threads per notebook, client
+side. Live probes showed the query endpoint ignores the history it is sent;
+context lives in the notebook's single server conversation, which every ask
+joins. A batch of questions on one notebook therefore shares one conversation.
 
 ### v4.11.1 - Audio and image sources, and two copy corrections from the live check
 
