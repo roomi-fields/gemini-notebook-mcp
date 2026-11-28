@@ -1244,8 +1244,6 @@ export class NotebookLm implements INodeType {
         name: 'sessionId',
         type: 'string',
         default: '',
-        description:
-          "Continue a conversation thread: the session_id an earlier answer returned, or a name of your own. The follow-up is answered in the context of the thread's earlier turns. Threads are independent of each other, several can run on one notebook, and they live in the server's memory until it restarts.",
         displayOptions: {
           show: {
             resource: ['qa', 'source', 'content'],

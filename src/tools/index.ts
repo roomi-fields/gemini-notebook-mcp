@@ -67,8 +67,6 @@ import {
   type SourceGuide,
 } from '../rpc/sources-rpc.js';
 import { QueryRpc } from '../rpc/query-rpc.js';
-import { ConversationStore } from '../rpc/conversation-store.js';
-import { randomUUID } from 'crypto';
 import {
   StudioRpc,
   type StudioType,
@@ -478,10 +476,7 @@ export function buildToolDefinitions(library: NotebookLibrary): Tool[] {
           session_id: {
             type: 'string',
             description:
-              'Continue a conversation thread: pass the session_id an earlier answer returned (or a ' +
-              'name of your own, e.g. "chapter-3"). The follow-up is answered in the context of the ' +
-              "thread's earlier turns. Threads are independent: run several on one notebook at once. " +
-              'If omitted, a new thread is started.',
+              'Optional session ID for contextual conversations. If omitted, a new session is created.',
           },
           notebook_id: {
             type: 'string',
@@ -2292,8 +2287,6 @@ function unknownLanguageError(input: string): string {
  */
 export class ToolHandlers {
   private sessionManager: SessionManager;
-  /** RPC conversation threads, keyed by the caller's session_id. */
-  private readonly conversations = new ConversationStore();
   private authManager: AuthManager;
   private library: NotebookLibrary;
 
@@ -2410,38 +2403,23 @@ export class ToolHandlers {
         }
       }
 
-      // RPC path (default): query the streaming endpoint directly — no
-      // browser — with structured citations parsed from the response. A
-      // session_id names a conversation thread whose earlier turns are replayed
-      // with the question (the endpoint keeps no state of its own), so
-      // follow-ups keep their context and several threads on one notebook stay
-      // independent. Only an id that belongs to a live browser session keeps
-      // the browser. Falls back to the browser on any RPC failure.
+      // RPC path (default) for a fresh single-turn ask (no session_id): query
+      // the streaming endpoint directly — no browser — with structured
+      // citations parsed from the response. Follow-ups (session_id present)
+      // keep the browser session for conversation continuity. Falls back on
+      // any RPC failure.
       const askNotebookId = resolvedNotebookUrl
         ? this.notebookIdFromUrl(resolvedNotebookUrl)
         : null;
-      const browserThread = session_id ? this.sessionManager.getSession(session_id) : undefined;
-      if (this.useRpcTransport() && !browserThread && askNotebookId) {
+      if (this.useRpcTransport() && !session_id && askNotebookId) {
         try {
           await sendProgress?.('Asking NotebookLM (RPC)...', 2, 5);
-          const known = session_id ? this.conversations.get(session_id) : undefined;
-          const thread = known?.notebookId === askNotebookId ? known : undefined;
           const { query, notebooks } = await this.getQueryRpc();
           const sources = await notebooks.getSources(askNotebookId);
           const titleById = new Map(sources.map((s) => [s.id, s.title]));
           const res = await query.ask(askNotebookId, question, {
             sourceIds: sources.map((s) => s.id),
-            conversationId: thread?.conversationId,
-            history: thread ? [...thread.turns] : undefined,
           });
-          const answer = res.answer.trimEnd();
-          const googleConversationId = res.conversationId || thread?.conversationId || randomUUID();
-          const recorded = this.conversations.record(
-            session_id ?? googleConversationId,
-            askNotebookId,
-            googleConversationId,
-            { question, answer }
-          );
           let sourcesOut: SourceCitations | undefined;
           if (source_format !== 'none') {
             sourcesOut = {
@@ -2456,22 +2434,16 @@ export class ToolHandlers {
             };
           }
           await sendProgress?.('Question answered successfully!', 5, 5);
-          log.success(
-            `✅ [TOOL] ask_question completed (RPC, turn ${recorded.turns.length} of thread ${recorded.id})`
-          );
+          log.success('✅ [TOOL] ask_question completed (RPC)');
           return {
             success: true,
             data: {
               status: 'success',
               question,
-              answer,
-              session_id: recorded.id,
+              answer: res.answer.trimEnd(),
+              session_id: res.conversationId || askNotebookId,
               notebook_url: resolvedNotebookUrl!,
-              session_info: {
-                age_seconds: Math.round((recorded.lastActivity - recorded.createdAt) / 1000),
-                message_count: recorded.turns.length,
-                last_activity: recorded.lastActivity,
-              },
+              session_info: { age_seconds: 0, message_count: 1, last_activity: Date.now() },
               sources: sourcesOut,
             },
           };
@@ -2722,7 +2694,6 @@ export class ToolHandlers {
         inactive_seconds: number;
         message_count: number;
         notebook_url: string;
-        transport: 'browser' | 'rpc';
       }>;
     }>
   > {
@@ -2731,42 +2702,22 @@ export class ToolHandlers {
     try {
       const stats = this.sessionManager.getStats();
       const sessions = this.sessionManager.getAllSessionsInfo();
-      const now = Date.now();
-      // Conversation threads of the RPC ask path are sessions too, from the
-      // caller's side: a session_id it can continue, reset or close.
-      const threads = this.conversations.list().map((t) => ({
-        id: t.id,
-        created_at: t.createdAt,
-        last_activity: t.lastActivity,
-        age_seconds: Math.round((now - t.createdAt) / 1000),
-        inactive_seconds: Math.round((now - t.lastActivity) / 1000),
-        message_count: t.turns.length,
-        notebook_url: `https://notebooklm.google.com/notebook/${t.notebookId}`,
-        transport: 'rpc' as const,
-      }));
 
       const result = {
-        active_sessions: stats.active_sessions + threads.length,
+        active_sessions: stats.active_sessions,
         max_sessions: stats.max_sessions,
         session_timeout: stats.session_timeout,
-        oldest_session_seconds: Math.max(
-          stats.oldest_session_seconds,
-          ...threads.map((t) => t.age_seconds)
-        ),
-        total_messages: stats.total_messages + threads.reduce((n, t) => n + t.message_count, 0),
-        sessions: [
-          ...sessions.map((info) => ({
-            id: info.id,
-            created_at: info.created_at,
-            last_activity: info.last_activity,
-            age_seconds: info.age_seconds,
-            inactive_seconds: info.inactive_seconds,
-            message_count: info.message_count,
-            notebook_url: info.notebook_url,
-            transport: 'browser' as const,
-          })),
-          ...threads,
-        ],
+        oldest_session_seconds: stats.oldest_session_seconds,
+        total_messages: stats.total_messages,
+        sessions: sessions.map((info) => ({
+          id: info.id,
+          created_at: info.created_at,
+          last_activity: info.last_activity,
+          age_seconds: info.age_seconds,
+          inactive_seconds: info.inactive_seconds,
+          message_count: info.message_count,
+          notebook_url: info.notebook_url,
+        })),
       };
 
       log.success(`✅ [TOOL] list_sessions completed (${result.active_sessions} sessions)`);
@@ -2796,9 +2747,7 @@ export class ToolHandlers {
     log.info(`  Session ID: ${session_id}`);
 
     try {
-      const closed =
-        this.conversations.delete(session_id) ||
-        (await this.sessionManager.closeSession(session_id));
+      const closed = await this.sessionManager.closeSession(session_id);
 
       if (closed) {
         log.success(`✅ [TOOL] close_session completed`);
@@ -2839,18 +2788,6 @@ export class ToolHandlers {
     log.info(`  Session ID: ${session_id}`);
 
     try {
-      if (this.conversations.reset(session_id)) {
-        log.success(`✅ [TOOL] reset_session completed (conversation thread)`);
-        return {
-          success: true,
-          data: {
-            status: 'success',
-            message: `Session ${session_id} reset successfully`,
-            session_id,
-          },
-        };
-      }
-
       const session = this.sessionManager.getSession(session_id);
 
       if (!session) {
