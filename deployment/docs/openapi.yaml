@@ -2044,6 +2044,12 @@ components:
                     type: integer
                   last_activity:
                     type: integer
+                  transport:
+                    type: string
+                    enum: [browser, rpc]
+                    description: >-
+                      rpc for a conversation thread answered without a browser,
+                      browser for a session driving a browser page.
             count:
               type: integer
             max_sessions:
@@ -2854,6 +2860,12 @@ components:
           type: string
         session_id:
           type: string
+          description: >-
+            Continue a conversation thread: the session_id an earlier answer
+            returned, or a name of your own. The follow-up is answered in the
+            context of the thread's earlier turns. Threads are independent of
+            each other, several can run on one notebook, and they live in the
+            server's memory until it restarts.
         source_format:
           type: string
           enum: [none, inline, footnotes, json, expanded]

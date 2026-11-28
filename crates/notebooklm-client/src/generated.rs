@@ -296,6 +296,7 @@ pub struct AskRequest {
     pub notebook_id: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub notebook_url: Option<String>,
+    /// Continue a conversation thread: the session_id an earlier answer returned, or a name of your own. The follow-up is answered in the context of the thread's earlier turns. Threads are independent of each other, several can run on one notebook, and they live in the server's memory until it restarts.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub session_id: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -703,6 +704,9 @@ pub struct ListSessionsDataSessionsItem {
     pub inactive_seconds: i64,
     #[serde(default)]
     pub last_activity: i64,
+    /// rpc for a conversation thread answered without a browser, browser for a session driving a browser page.
+    #[serde(default)]
+    pub transport: String,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]

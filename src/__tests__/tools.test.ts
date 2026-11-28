@@ -951,6 +951,91 @@ describe('ToolHandlers Methods', () => {
     });
   });
 
+  describe('ask_question conversation threads (RPC path)', () => {
+    const NB_URL = 'https://notebooklm.google.com/notebook/0b1e2c3d-4f50-4a6b-8c7d-9e0f1a2b3c4d';
+
+    /** Handlers whose RPC query is a fake that records what each ask sent. */
+    function rpcHandlers() {
+      const sent: any[] = [];
+      let n = 0;
+      const query = {
+        ask: jest.fn(async (_nb: string, question: string, opts: any) => {
+          sent.push({ question, ...opts });
+          n += 1;
+          return {
+            answer: `answer ${n}`,
+            conversationId: opts.conversationId ?? `conv-${n}`,
+            sourcesUsed: [],
+            citations: {},
+            references: [],
+          };
+        }),
+      };
+      const notebooks = { getSources: jest.fn(async () => [{ id: 's1', title: 'S1' }]) };
+      const handlers = new ToolHandlers(mockSessionManager, mockAuthManager, mockLibrary);
+      handlers.getQueryRpc = jest.fn(async () => ({ query, notebooks }));
+      return { handlers, sent, query };
+    }
+
+    it('replays the thread on a follow-up instead of opening a browser', async () => {
+      const { handlers, sent } = rpcHandlers();
+      const first = await handlers.handleAskQuestion({ question: 'q1', notebook_url: NB_URL });
+      expect(first.error).toBeUndefined();
+      expect(first.success).toBe(true);
+      const id = first.data.session_id;
+      expect(id).toBe('conv-1');
+
+      const second = await handlers.handleAskQuestion({
+        question: 'q2',
+        notebook_url: NB_URL,
+        session_id: id,
+      });
+      expect(second.data.session_id).toBe(id);
+      expect(second.data.session_info.message_count).toBe(2);
+      expect(sent[1].conversationId).toBe('conv-1');
+      expect(sent[1].history).toEqual([{ question: 'q1', answer: 'answer 1' }]);
+      expect(mockSessionManager.getOrCreateSession).not.toHaveBeenCalled();
+    });
+
+    it('keeps two threads on one notebook independent', async () => {
+      const { handlers, sent } = rpcHandlers();
+      await handlers.handleAskQuestion({ question: 'a1', notebook_url: NB_URL, session_id: 'A' });
+      await handlers.handleAskQuestion({ question: 'b1', notebook_url: NB_URL, session_id: 'B' });
+      await handlers.handleAskQuestion({ question: 'a2', notebook_url: NB_URL, session_id: 'A' });
+      expect(sent[2].history.map((t: any) => t.question)).toEqual(['a1']);
+    });
+
+    it('leaves an id that names a live browser session on the browser', async () => {
+      const { handlers, query } = rpcHandlers();
+      mockSessionManager.getSession.mockReturnValue({ sessionId: 'browser-1' });
+      await handlers.handleAskQuestion({
+        question: 'q',
+        notebook_url: NB_URL,
+        session_id: 'browser-1',
+      });
+      expect(query.ask).not.toHaveBeenCalled();
+      expect(mockSessionManager.getOrCreateSession).toHaveBeenCalled();
+    });
+
+    it('lists, resets and closes a thread like a session', async () => {
+      const { handlers, sent } = rpcHandlers();
+      await handlers.handleAskQuestion({ question: 'q1', notebook_url: NB_URL, session_id: 'T' });
+
+      const listed = await handlers.handleListSessions();
+      expect(listed.data.sessions).toEqual([
+        expect.objectContaining({ id: 'T', transport: 'rpc', message_count: 1 }),
+      ]);
+
+      expect((await handlers.handleResetSession({ session_id: 'T' })).success).toBe(true);
+      await handlers.handleAskQuestion({ question: 'q2', notebook_url: NB_URL, session_id: 'T' });
+      expect(sent[1].history).toEqual([]);
+
+      expect((await handlers.handleCloseSession({ session_id: 'T' })).success).toBe(true);
+      expect(mockSessionManager.closeSession).not.toHaveBeenCalled();
+      expect((await handlers.handleListSessions()).data.sessions).toEqual([]);
+    });
+  });
+
   describe('handleAutoDiscoverNotebook', () => {
     it('should handle auto-discovery errors', async () => {
       const handlers = new ToolHandlers(mockSessionManager, mockAuthManager, mockLibrary);

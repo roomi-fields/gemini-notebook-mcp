@@ -356,9 +356,19 @@ curl -X POST http://localhost:3000/ask \
 | `question`      | string  | ✅ Yes   | The question to ask                    |
 | `notebook_id`   | string  | ❌ No    | Notebook ID (or URL)                   |
 | `notebook_url`  | string  | ❌ No    | Direct notebook URL                    |
-| `session_id`    | string  | ❌ No    | Reuse an existing session              |
+| `session_id`    | string  | ❌ No    | Continue a conversation thread (below) |
 | `show_browser`  | boolean | ❌ No    | Show Chrome (debug)                    |
 | `source_format` | string  | ❌ No    | Citation extraction format (see below) |
+
+**Conversation threads:** every answer returns a `session_id`. Send it back
+with the next question and the follow-up is answered in the context of the
+earlier turns, over the same direct call as the first question — no browser.
+Several threads can run on one notebook at once, each with its own context: start
+each one without a `session_id`, or name your own (`"session_id": "chapter-3"`).
+`GET /sessions` lists them, `POST /sessions/:id/reset` empties one and
+`DELETE /sessions/:id` closes it. Threads live in the server's memory: a
+restart forgets them, and a follow-up on a forgotten id starts that thread
+afresh (`session_info.message_count` is back to `1`).
 
 **Source Format Options:**
 

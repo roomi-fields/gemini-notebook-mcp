@@ -569,6 +569,9 @@ module NotebookLM
     field :inactive_seconds, 'inactive_seconds'
     # @return [Integer]
     field :last_activity, 'last_activity'
+    # rpc for a conversation thread answered without a browser, browser for a session driving a browser page.
+    # @return [String]
+    field :transport, 'transport'
   end
 
   # The `CloseSessionData` shape.
@@ -1389,7 +1392,7 @@ module NotebookLM
     # @param question [String]
     # @param notebook_id [String, nil]
     # @param notebook_url [String, nil]
-    # @param session_id [String, nil]
+    # @param session_id [String, nil] Continue a conversation thread: the session_id an earlier answer returned, or a name of your own. The follow-up is answered in the context of the thread's earlier turns. Threads are independent of each other, several can run on one notebook, and they live in the server's memory until it restarts.
     # @param source_format [String, nil]
     # @param show_browser [Boolean, nil]
     # @return [AskQuestionData]

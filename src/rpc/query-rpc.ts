@@ -13,6 +13,7 @@
 import { randomUUID } from 'crypto';
 import { BatchExecuteClient } from './batchexecute.js';
 import { NotebookRpc } from './notebooks-rpc.js';
+import { buildQueryHistory, type ConversationTurn } from './conversation-store.js';
 
 export interface RpcReference {
   source_id: string;
@@ -43,18 +44,25 @@ export class QueryRpc {
 
   /**
    * Ask a question against a notebook. `sourceIds` defaults to all sources.
-   * Stateless by default (fresh conversation id); pass `conversationId` to
-   * continue a thread (history is not yet re-sent — Phase 3 covers single-turn).
+   * A fresh conversation id unless `conversationId` is given. The endpoint is
+   * stateless, so a follow-up must carry the earlier turns in `history`
+   * (see {@link ConversationStore}); the id alone recalls nothing.
    */
   async ask(
     notebookId: string,
     question: string,
-    opts: { sourceIds?: string[]; conversationId?: string } = {}
+    opts: { sourceIds?: string[]; conversationId?: string; history?: ConversationTurn[] } = {}
   ): Promise<RpcAnswer> {
     const sourceIds = opts.sourceIds ?? (await this.notebooks.getSourceIds(notebookId));
     const conversationId = opts.conversationId ?? randomUUID();
     const sourcesArray = sourceIds.map((id) => [[id]]);
-    const params = [sourcesArray, question, null, [2, null, [1]], conversationId];
+    const params = [
+      sourcesArray,
+      question,
+      buildQueryHistory(opts.history ?? []),
+      [2, null, [1]],
+      conversationId,
+    ];
 
     const text = await this.client.postQueryStreamed(params);
     const { answer, citation, serverConvId } = parseQueryResponse(text);
