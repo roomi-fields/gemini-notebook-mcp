@@ -74,8 +74,8 @@ Before creating an issue:
 # 1. Fork the project on GitHub
 
 # 2. Clone your fork
-git clone https://github.com/YOUR-USERNAME/notebooklm-mcp.git
-cd notebooklm-mcp
+git clone https://github.com/YOUR-USERNAME/gemini-notebook-mcp.git
+cd gemini-notebook-mcp
 
 # 3. Create a branch for your feature
 git checkout -b feature/my-new-feature

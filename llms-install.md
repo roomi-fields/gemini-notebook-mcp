@@ -13,7 +13,14 @@ drives the same service.
 
 ## 1. Add the server to the MCP configuration
 
-No clone or build is needed; `npx` fetches the published package.
+No clone or build is needed; `npx` fetches the published package. The quickest
+way is to let the server register itself with the clients it finds:
+
+```bash
+npx -y @roomi-fields/notebooklm-mcp setup --yes
+```
+
+Or add this entry to the client's MCP configuration by hand:
 
 ```json
 {

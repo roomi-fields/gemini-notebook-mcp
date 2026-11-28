@@ -262,7 +262,7 @@ That registers the MCP server **and the `notebooklm` agent skill**, runs `npx -y
 
 ```bash
 git clone https://github.com/roomi-fields/gemini-notebook-mcp.git
-cd notebooklm-mcp
+cd gemini-notebook-mcp
 npm install && npm run build
 npm run setup-auth   # One-time Google login
 npm run start:http   # Start REST API on port 3000
@@ -275,37 +275,48 @@ curl -X POST http://localhost:3000/ask \
   -d '{"question": "Summarize chapter 3", "notebook_id": "your-id", "source_format": "json"}'
 ```
 
-The full surface is **33 documented endpoints** — see the [REST API reference](https://notebooklm.roomi-fields.com/notebooklm-rest-api). For overnight batches of 1 000+ questions, see the [batch pattern](https://notebooklm.roomi-fields.com/batch-1000-questions).
+The full surface is **62 documented endpoints** — see the [REST API reference](https://notebooklm.roomi-fields.com/notebooklm-rest-api). For overnight batches of 1 000+ questions, see the [batch pattern](https://notebooklm.roomi-fields.com/batch-1000-questions).
 
-### Option 2 — MCP Mode (Claude Code, Cursor, Codex)
+### Option 2 — MCP Mode (Claude Code, Cursor, Codex, Windsurf, VS Code…)
+
+One command finds the MCP clients installed on your machine and registers the
+server with each of them (Node ≥ 22 required):
 
 ```bash
-# Build (same package, MCP transport)
-git clone https://github.com/roomi-fields/gemini-notebook-mcp.git
-cd notebooklm-mcp
-npm install && npm run build
+npx -y @roomi-fields/notebooklm-mcp setup
+```
 
-# Claude Code
-claude mcp add notebooklm node /path/to/notebooklm-mcp/dist/index.js
+It covers Claude Code, Codex, Claude Desktop, Cursor, Windsurf, Gemini CLI,
+VS Code (Copilot) and Cline. It shows what it found and asks before changing
+anything, backs each config file up next to itself, never rewrites a file it
+cannot parse (it prints the snippet to paste instead), and keeps an existing
+`notebooklm` entry of yours unless you pass `--force`. `--dry-run` shows the
+changes without making them, `--client cursor,vscode` limits it to some
+clients, and `--remove` takes the entry out again.
 
-# Cursor — add to ~/.cursor/mcp.json
+By hand, the entry every client expects is:
+
+```json
 {
   "mcpServers": {
     "notebooklm": {
-      "command": "node",
-      "args": ["/path/to/notebooklm-mcp/dist/index.js"]
+      "command": "npx",
+      "args": ["-y", "@roomi-fields/notebooklm-mcp@latest"]
     }
   }
 }
 ```
+
+From a clone instead, point the client at `node /path/to/gemini-notebook-mcp/dist/index.js`
+after `npm install && npm run build`.
 
 **Log in once — in a terminal, not through the assistant.** Run the interactive
 Google login as a command; a visible Chrome window opens, you sign in, and the
 saved session is then reused by the MCP server:
 
 ```bash
-npm run setup-auth          # from a clone (Option 2 above)
-notebooklm-mcp setup-auth   # from a global install (npm i -g @roomi-fields/notebooklm-mcp)
+npx -y -p @roomi-fields/notebooklm-mcp notebooklm-mcp-setup-auth   # after `setup` above
+npm run setup-auth                                                # from a clone
 ```
 
 Do the login in a terminal rather than by asking the assistant _"log me in"_:

@@ -269,6 +269,7 @@ async function main() {
   }
   if (arg && !arg.startsWith('-')) {
     const cliModules: Record<string, string> = {
+      setup: './cli/setup.js',
       'setup-auth': './cli/setup-auth.js',
       'de-auth': './cli/de-auth.js',
       accounts: './cli/accounts.js',

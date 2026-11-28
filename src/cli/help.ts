@@ -10,6 +10,7 @@ console.log(`
 
 USAGE (installed binary — npx or global install):
   notebooklm-mcp              Start the MCP server on stdio (how MCP clients spawn it)
+  notebooklm-mcp setup        Register the server with your MCP clients (setup --help)
   notebooklm-mcp setup-auth   Google login in your terminal (no client timeout)
   notebooklm-mcp de-auth      Clear authentication
   notebooklm-mcp accounts     Manage stored accounts
