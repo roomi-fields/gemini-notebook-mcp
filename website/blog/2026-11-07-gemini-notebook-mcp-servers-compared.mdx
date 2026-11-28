@@ -26,13 +26,13 @@ is stated below rather than buried.
 
 ## The numbers, 7 November 2026
 
-| Project | Stars | Language | Installs / 30 days | Last push |
-| --- | --- | --- | --- | --- |
-| [teng-lin/notebooklm-py](https://github.com/teng-lin/notebooklm-py) | 20 151 | Python | **134 206** (PyPI `notebooklm-py`) | same day |
-| [jacob-bd/gemini-notebook-mcp-cli](https://github.com/jacob-bd/gemini-notebook-mcp-cli) | 6 472 | Python | **66 615** (`notebooklm-mcp-cli` + `notebooklm-mcp-server`) | day before |
-| [PleasePrompto/notebooklm-mcp](https://github.com/PleasePrompto/notebooklm-mcp) | 3 443 | TypeScript | **11 724** (npm `notebooklm-mcp`) | **archived** 10 Sep 2026 |
-| [roomi-fields/gemini-notebook-mcp](https://github.com/roomi-fields/gemini-notebook-mcp) (this one) | 228 | TypeScript | **5 411** (npm `@roomi-fields/notebooklm-mcp`) | same day |
-| [PavelGuzenfeld/notebooklm-mcp](https://github.com/PavelGuzenfeld/notebooklm-mcp) | 2 | Python | 45 (PyPI `mcp-notebooklm`) | Sep 2026 |
+| Project                                                                                            | Stars  | Language   | Installs / 30 days                                          | Last push                |
+| -------------------------------------------------------------------------------------------------- | ------ | ---------- | ----------------------------------------------------------- | ------------------------ |
+| [teng-lin/notebooklm-py](https://github.com/teng-lin/notebooklm-py)                                | 20 151 | Python     | **134 206** (PyPI `notebooklm-py`)                          | same day                 |
+| [jacob-bd/gemini-notebook-mcp-cli](https://github.com/jacob-bd/gemini-notebook-mcp-cli)            | 6 472  | Python     | **66 615** (`notebooklm-mcp-cli` + `notebooklm-mcp-server`) | day before               |
+| [PleasePrompto/notebooklm-mcp](https://github.com/PleasePrompto/notebooklm-mcp)                    | 3 443  | TypeScript | **11 724** (npm `notebooklm-mcp`)                           | **archived** 10 Sep 2026 |
+| [roomi-fields/gemini-notebook-mcp](https://github.com/roomi-fields/gemini-notebook-mcp) (this one) | 228    | TypeScript | **5 411** (npm `@roomi-fields/notebooklm-mcp`)              | same day                 |
+| [PavelGuzenfeld/notebooklm-mcp](https://github.com/PavelGuzenfeld/notebooklm-mcp)                  | 2      | Python     | 45 (PyPI `mcp-notebooklm`)                                  | Sep 2026                 |
 
 Retake it yourself — no key, no account:
 
@@ -103,7 +103,9 @@ weekend project, listed here because directories list it.
 
 ## The constraint all of them share
 
-None of these is official. Google publishes no API for the consumer product, so
+None of these is official. Google's own API for the consumer product, in preview
+since November 2026, creates notebooks and adds sources but asks nothing and
+generates nothing ([what it covers](/blog/official-gemini-notebook-api)), so
 every project here carries a logged-in Google session into endpoints Google
 never documented — which is why they all need a browser login, and why they all
 break together when something changes upstream. The three properties of that
@@ -112,14 +114,14 @@ session, and the one official API that exists, are in
 
 ## Pick by what you are building
 
-| If you are… | Pick |
-| --- | --- |
-| writing Python | notebooklm-py |
-| wanting a command line at hand | gemini-notebook-mcp-cli |
-| calling it from n8n, Zapier, Make, cron or curl | this project |
-| wanting citations as structured data | this project |
-| wanting a typed client in Rust or Ruby | this project |
-| running several Google accounts | this project |
-| already on the archived PleasePrompto server | [migrate when convenient](/compare) |
+| If you are…                                     | Pick                                |
+| ----------------------------------------------- | ----------------------------------- |
+| writing Python                                  | notebooklm-py                       |
+| wanting a command line at hand                  | gemini-notebook-mcp-cli             |
+| calling it from n8n, Zapier, Make, cron or curl | this project                        |
+| wanting citations as structured data            | this project                        |
+| wanting a typed client in Rust or Ruby          | this project                        |
+| running several Google accounts                 | this project                        |
+| already on the archived PleasePrompto server    | [migrate when convenient](/compare) |
 
 [Install](/install) is one command and one login.

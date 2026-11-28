@@ -1,6 +1,6 @@
 ---
 title: 'Does NotebookLM have an API? The 2026 answer'
-description: 'Google now ships a Gemini Notebook Enterprise API in preview, the standalone Podcast API is deprecated, and the consumer product still has no developer key. What each route actually gives you.'
+description: 'Google ships two Gemini Notebook APIs in preview — Enterprise, and since November 2026 the consumer one, which builds notebooks but asks nothing — and the Podcast API is deprecated. What each route actually gives you.'
 slug: does-notebooklm-have-an-api
 authors: [romain]
 tags: [notebooklm, api]
@@ -14,11 +14,14 @@ keywords:
   - gemini notebook
 ---
 
-Yes and no, and the honest answer changed during 2026. Google does publish an
-API for Gemini Notebook Enterprise, in preview, behind a Cloud project and a
-licence. The consumer NotebookLM you log into with a personal Google account
-still has no developer key, and the standalone Podcast API that some posts
-point at is deprecated and not taking new customers.
+Yes, and the answer changed twice during 2026. Google publishes an API for
+Gemini Notebook Enterprise, in preview, behind a Cloud project and a licence.
+And as of November 2026 the consumer Gemini Notebook you log into with a
+personal Google account has one too, also in preview: seven MCP tools and a REST
+surface that create notebooks and add sources, but ask nothing and generate
+nothing — [what it covers, and what it leaves out](/blog/official-gemini-notebook-api).
+The standalone Podcast API that some posts point at is deprecated and not
+taking new customers.
 
 Most answers you will find say flatly "there is no API". That was true and is
 now wrong, which is worse than either.
@@ -47,7 +50,7 @@ served under Discovery Engine, and it holds exactly five services:
 **Read that list for what is absent.** No method asks a notebook anything.
 There is no chat, no grounded answer, no citation — and no Studio output beyond
 audio: no report, no video, no infographic, no slide deck, no mind map, no
-flashcards, no quiz, no notes. The thing the product is *for* — answers
+flashcards, no quiz, no notes. The thing the product is _for_ — answers
 grounded in your own sources, with the passage behind each claim — is not in
 its API. That single fact decides most people's choice, and almost no
 comparison states it.
@@ -79,8 +82,8 @@ Google can change them, and when it does the project breaks until someone
 fixes it. That has happened — the mid-2026 interface rebuild broke every such
 tool at once.
 
-And they share the reason there is no consumer key to find. The consumer
-product authenticates with **a logged-in Google session**, which carries three
+And they share how they get in. The web app they drive authenticates with
+**a logged-in Google session**, which carries three
 properties worth knowing before you pick a tool: it is **bound to the machine**
 it was created on, so copied cookies are refused even while their local expiry
 still looks valid; it **expires server-side** while those cookies look fine, so

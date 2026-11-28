@@ -64,7 +64,9 @@ with a number, a source name and the quoted passage.
 
 ## Why the gem owns no browser
 
-Google publishes no API for the consumer product. Everything any tool does —
+Google's API for the consumer product, in preview since November 2026, creates
+notebooks and adds sources but answers no question and generates nothing
+([what it covers](/blog/official-gemini-notebook-api)). Everything else any tool does —
 this gem, the competing command-line tools, the browser extensions — rides on
 the endpoints the web application itself calls, and those need a logged-in
 Google session. Keeping one is three problems, and all three are worse than

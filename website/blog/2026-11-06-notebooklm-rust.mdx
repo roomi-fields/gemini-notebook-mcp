@@ -48,7 +48,8 @@ is — worth reading before you depend on it, because the shape is the argument.
 
 ## The part a crate cannot have
 
-Consumer NotebookLM — Gemini Notebook, since the rename — has no public API. Everything any tool does, ours
+Consumer NotebookLM — Gemini Notebook, since the rename — got a public API in preview in November 2026, but it
+only builds notebooks and adds sources ([what it covers](/blog/official-gemini-notebook-api)). Everything else any tool does, ours
 included, rides on the same internal endpoints the web app calls, and those
 require a logged-in Google session. Getting one means driving a real browser
 through a real login, and keeping it means three things that are easy to

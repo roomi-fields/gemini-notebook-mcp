@@ -1,0 +1,117 @@
+---
+title: 'The official Gemini Notebook API: what it does, and what it does not yet'
+description: 'Google opened a Gemini Notebook API and MCP server in public preview: seven tools for notebooks and sources, OAuth only, personal accounts only. What it covers, what it leaves out, and when to pick it over this project.'
+slug: official-gemini-notebook-api
+authors: [romain]
+tags: [notebooklm, api, mcp, comparison]
+keywords:
+  - gemini notebook api
+  - gemini notebook mcp
+  - official gemini notebook api
+  - notebooklm api
+  - notebooklm official mcp server
+  - notebook.googleapis.com
+---
+
+Google now publishes an API for the consumer **Gemini Notebook** — the product
+called NotebookLM until July 2026 — with a remote MCP server at
+`https://notebook.googleapis.com/mcp`. It is in public preview. For anyone who
+has been driving the web app through unofficial tools, this project included,
+that is the news of the year.
+
+So what does it actually do today? Read from Google's own documentation on
+28 November 2026, and compared operation by operation with what an unofficial
+server covers.
+
+{/* truncate */}
+
+## What does the official API cover?
+
+Seven MCP tools, mirroring the REST methods under
+`https://notebook.googleapis.com/v1`:
+
+| Tool              | What it does                                           |
+| ----------------- | ------------------------------------------------------ |
+| `create_notebook` | Create a notebook                                      |
+| `get_notebook`    | Read a notebook's metadata                             |
+| `list_notebooks`  | List notebooks, optionally only those you own          |
+| `update_notebook` | Rename a notebook                                      |
+| `create_source`   | Add a web URL, a YouTube video, plain text or Markdown |
+| `get_source`      | Read a source's metadata and processing state          |
+| `list_sources`    | List a notebook's sources                              |
+
+File upload exists too, but only in REST: `UploadSource` takes PDFs, Word
+documents, audio and images up to 200 MiB, at 20 uploads per minute per user.
+The MCP server says so itself: "File uploads aren't available as an MCP tool."
+
+## Who can use it?
+
+- **Personal Google accounts only**, during the preview. A Workspace account
+  gets `403 PERMISSION_DENIED` with `WORKSPACE_ACCOUNT_NOT_SUPPORTED`.
+- **OAuth 2.0 only.** "The API doesn't accept API keys." You need a Google
+  Cloud project with the API enabled, and the documented local route is
+  `gcloud auth application-default login` with the `notebook` scope.
+- **Tokens from `gcloud` expire after one hour**, so a long-running agent has
+  to refresh them.
+- **Published rate limits**: 100 requests per minute per project, 20 per
+  minute per user for adding sources, 60 for the other methods.
+
+## What does it not do yet?
+
+Everything past building a notebook. Nothing in the documentation asks a
+question, generates anything, or reads a result back:
+
+- **No questions and no answers**, so no citations either. Grounded Q&A, the
+  reason most people open a notebook, is not in the API.
+- **No Studio**: no audio or video overview, slides, report, infographic, data
+  table, mind map, quiz or flashcards, and no download of the ones you made in
+  the web app.
+- **No notes, no sharing, no chat history.**
+- **No deleting** a source or a notebook.
+
+## How does it compare with an unofficial server?
+
+|                                | Official API (preview)             | gemini-notebook-mcp                                                     |
+| ------------------------------ | ---------------------------------- | ----------------------------------------------------------------------- |
+| Status                         | Supported by Google                | Unofficial, drives the web app's internal calls                         |
+| Notebooks and sources          | Create, read, list, rename         | The same, plus delete and copy                                          |
+| File upload                    | REST, documented, 200 MiB          | Through a browser, the most fragile part                                |
+| Questions with cited passages  | —                                  | Yes, [citations as JSON](/blog/notebooklm-citations-as-json)            |
+| Studio generation and download | —                                  | Audio, video, slides, reports, infographics, tables, mind maps, quizzes |
+| Notes, sharing, chat history   | —                                  | Yes                                                                     |
+| Accounts                       | Personal only, during preview      | Whatever account can open the web app; several, rotated on quota        |
+| Setup                          | Cloud project, OAuth, hourly token | `npx -y @roomi-fields/notebooklm-mcp setup`, then one browser login     |
+| Interfaces                     | Remote MCP, REST                   | Local MCP, REST, n8n node, Rust and Ruby clients                        |
+
+## When is the official API the right choice?
+
+When all you need is to build notebooks and fill them: create one, add URLs,
+text and files, and leave the rest to a person in the web app. Then pick the
+official API. It is documented, its terms are Google's, it needs no browser,
+and it will not break the day Google rearranges the web app — which is the
+standing risk of every unofficial tool, this one included.
+
+It is also the right choice for anything you intend to ship to other people
+under your own name. An undocumented interface is a dependency you cannot
+promise anything about.
+
+## When is it not?
+
+When the work is asking, not filing. A thesis run of a hundred questions with
+the passages behind every answer, a podcast generated from each new batch of
+sources, an n8n flow that turns a sheet of questions into cited answers: none
+of that is in the preview. That is what this project is for, and it is
+compared with the other unofficial servers in
+[Gemini Notebook MCP servers compared](/blog/gemini-notebook-mcp-servers-compared).
+
+## What happens next?
+
+Google rarely ships a preview this narrow and leaves it there. Questions with
+citations are the obvious next tool, and Studio the one after. Where the
+official API covers an operation, the sensible move for an unofficial project
+is to use it and keep its own path as the fallback. File upload is first on
+that list here, because it is the step that still needs a browser.
+
+The longer history of what Google has and has not offered, Enterprise
+included, is in [does Gemini Notebook have an API?](/blog/does-notebooklm-have-an-api).
+To try this project, [install](/install) is one command and one login.
